@@ -3,6 +3,7 @@ import heapq
 import math
 from binascii import *
 from collections import Counter
+from Crypto.Cipher import AES
 
 
 def xor_buffers(buff1, buff2):
@@ -102,12 +103,10 @@ def repeating_xor_cracker():
     keys = []
     for block in transposed:
         keys.append(single_byte_xor_cracker(block)[0])
-    # print(keys)
-    # print(contents)
     key = bytes(keys)
     res = repeating_xor(contents, key)
-    print(key.decode())
-    print(res.decode())
+
+    return key, res
 
 
 def chunk_contents(blocksize, contents):
@@ -128,6 +127,14 @@ def detect_single_charactor_xor():
             key_and_text = single_byte_xor_cracker(bytes.fromhex(line))
             heapq.heappush(heap, (char_frequency_analysis(key_and_text[1]), str(key_and_text[1])))
     print(heapq.heappop(heap))
+
+def decrypt_aes_ecb(key = 'YELLOW SUBMARINE'):
+    with open('7.txt') as f:
+        contents = base64.b64decode(f.read())
+    cipher = AES.new(bytes(key, 'utf-8'), AES.MODE_ECB)
+    res = cipher.decrypt(contents)
+    return res
+
 
 if __name__ == '__main__':
     """
@@ -162,6 +169,8 @@ if __name__ == '__main__':
     # 5
     out = hamming_distance(b'this is a test', b'wokka wokka!!!')
     assert(out == 37)
-    repeating_xor_cracker()
+    print(repeating_xor_cracker())
+
+    print(decrypt_aes_ecb())
 
     print("Success")
