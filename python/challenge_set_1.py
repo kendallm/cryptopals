@@ -135,6 +135,18 @@ def decrypt_aes_ecb(key = 'YELLOW SUBMARINE'):
     res = cipher.decrypt(contents)
     return res
 
+def detect_aes_ecb(input=[]):
+    potentials = []
+    for line in input:
+        blocks = chunk_contents(16, line)
+        blocks.sort()
+        seen = set()
+        for block in blocks:
+            if block in seen:
+                potentials.append(line)
+            seen.add(block)
+    if len(potentials) >= 1:
+        return potentials[0]
 
 if __name__ == '__main__':
     """
@@ -171,6 +183,12 @@ if __name__ == '__main__':
     assert(out == 37)
     print(repeating_xor_cracker())
 
-    print(decrypt_aes_ecb())
+    print(decrypt_aes_ecb().decode('utf-8'))
 
+    with open("8.txt") as f:
+        contents = []
+        for line in f:
+            contents.append(line.strip())
+
+    print(detect_aes_ecb(contents))
     print("Success")
